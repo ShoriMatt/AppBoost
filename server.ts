@@ -1,46 +1,66 @@
-// l'ensemble des imports
+// l'ensemble des imports 
+
 import express from 'express'
+import { pool } from './db.js'
 
-const app = express()
-const PORT = 4000
-
-// Structure pour un utilisateur
-interface User {
-  id: string
-  username: string
-  birthdate: string
+type UserType = {
+    id: number
+    name: string
+    email: string
+    username: string
 }
 
-// Tableau pour stocker les utilisateurs
-const users: User[] = []
+const app = express()
+const PORT: number = 4000
 
 app.use(express.json())
 
+const users: UserType[] = []
+let nextId = 1
+
 // logique métier
-app.get('/users', (_req, res) => {
-  console.log('test route users')
-  res.json(users)
+app.get('/users/:id', async (req, res) => {
+    const id: number = Number(req.params.id)
+    console.log('test route users')
+
+    const [rows] = await pool.query(
+        'SELECT id, email, name FROM users WHERE id = ?',
+        [id]
+    )
+
+    res.status(200).json(rows)                         
 })
 
-app.get('/users/:username', (req, res) => {
-  const username = req.params.username
+app.get('/users', (req, res) => {
+    const { username } = req.query
 
-  const result = users.filter((user) => user.username.toLowerCase() === username.toLowerCase())
+    if (!username || typeof username !== 'string') {
+        return res.status(200).json(users)
+    }
 
-  res.json(result)
+    const results = users.filter(user =>
+        user.username.toLowerCase() === username.toLowerCase()
+    )
+
+    res.json(results)
 })
 
-app.post('/users', (req, res) => {
-  const { username, birthdate } = req.body as { username: string; birthdate: string }
-  const id = String(users.length + 1)
+    
 
-  const newUser: User = { id, username, birthdate }
-  users.push(newUser)
+app.post('/users', async (req, res) => {
+    const { name } = req.body
+    if (!name || typeof name !== 'string' || !name.trim()) {
+        return res.status(400).json({ error: 'Le champ name est requis.' })
+    }
 
-  res.json(newUser)
+    const result = await pool.query(
+        'INSERT INTO users (name) VALUES (?)',
+        [name.trim()]
+    )                                                           
+    res.status(201).json(result)                                             
 })
 
 // écouter sur un port
 app.listen(PORT, () => {
-  console.log(`server running on localhost:${PORT}`)
+  console.log(`Server is running on http://localhost:${PORT}`)
 })
