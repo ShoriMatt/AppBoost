@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from 'express'
-import { RowDataPacket, ResultSetHeader } from 'mysql2/promise'
-import { pool } from '../../db.js'
+import { Request, Response, NextFunction } from "express"
+import { RowDataPacket, ResultSetHeader } from "mysql2/promise"
+import { pool } from "../../db.js"
+import { register } from "../services/users.service.js"
 
 type UserRow = RowDataPacket & {
   id: number
@@ -9,20 +10,25 @@ type UserRow = RowDataPacket & {
   username: string | null
 }
 
-export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const id = Number(req.params.id)
+
     if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Paramètre id invalide' })
+      return res.status(400).json({ error: "Paramètre id invalide" })
     }
 
     const [rows] = await pool.query<UserRow[]>(
-      'SELECT id, email, name, username FROM users WHERE id = ?',
+      "SELECT id, email, name, username FROM users WHERE id = ?",
       [id]
     )
 
     if (!rows.length) {
-      return res.status(404).json({ error: 'Utilisateur introuvable' })
+      return res.status(404).json({ error: "Utilisateur introuvable" })
     }
 
     return res.status(200).json(rows[0])
@@ -31,23 +37,27 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
   }
 }
 
-export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+export const getUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { username } = req.query
 
     if (!username) {
       const [rows] = await pool.query<UserRow[]>(
-        'SELECT id, email, name, username FROM users'
+        "SELECT id, email, name, username FROM users"
       )
       return res.status(200).json(rows)
     }
 
-    if (typeof username !== 'string') {
-      return res.status(400).json({ error: 'Query param username invalide' })
+    if (typeof username !== "string") {
+      return res.status(400).json({ error: "Query param username invalide" })
     }
 
     const [rows] = await pool.query<UserRow[]>(
-      'SELECT id, email, name, username FROM users WHERE LOWER(username) = LOWER(?)',
+      "SELECT id, email, name, username FROM users WHERE LOWER(username) = LOWER(?)",
       [username]
     )
 
@@ -57,31 +67,39 @@ export const getUsers = async (req: Request, res: Response, next: NextFunction) 
   }
 }
 
-export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { name } = req.body as { name?: unknown }
 
-    if (!name || typeof name !== 'string' || !name.trim()) {
-      return res.status(400).json({ error: 'Le champ name est requis' })
+    if (!name || typeof name !== "string" || !name.trim()) {
+      return res.status(400).json({ error: "Le champ name est requis" })
     }
 
     const cleanName = name.trim()
 
     const [result] = await pool.query<ResultSetHeader>(
-      'INSERT INTO users (name) VALUES (?)',
+      "INSERT INTO users (name) VALUES (?)",
       [cleanName]
     )
 
     return res.status(201).json({
       id: result.insertId,
-      name: cleanName,
+      name: cleanName
     })
   } catch (err) {
     next(err)
   }
 }
 
-export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const id = Number(req.params.id)
   const { username, firstname, lastname, birthday, age } = req.body
 
@@ -97,14 +115,34 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
   }
 }
 
-
-export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const id = Number(req.params.id)
 
   try {
     await pool.query("DELETE FROM users WHERE id = ?", [id])
 
     res.json({ success: true, message: "Utilisateur supprimé" })
+  } catch (err) {
+    next(err)
+  }
+}
+
+export const registerUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const user = await register(req.body)
+
+    res.status(201).json({
+      success: true,
+      data: user
+    })
   } catch (err) {
     next(err)
   }
