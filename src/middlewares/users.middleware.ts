@@ -1,11 +1,7 @@
 import { Request, Response, NextFunction } from "express"
 
 // Valide que l'ID utilisateur est un nombre valide
-export const validateUserId = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const validateUserId = (req: Request,res: Response,next: NextFunction) => {
 
   const id = Number(req.params.id)
 
@@ -19,11 +15,7 @@ export const validateUserId = (
 }
 
 // Valide les données pour la création d'un utilisateur
-export const validateCreateUser = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const validateCreateUser = (req: Request,res: Response,next: NextFunction) => {
 
   const { name } = req.body
 
@@ -37,11 +29,7 @@ export const validateCreateUser = (
 }
 
 // Valide les données pour la mise à jour d'un utilisateur
-export const validateUpdateUser = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const validateUpdateUser = (req: Request,res: Response,next: NextFunction) => {
 
   const { username, firstname, lastname, birthday, age } = req.body
 
@@ -67,11 +55,7 @@ export const validateUpdateUser = (
 }
 
 // Valide les données pour l'enregistrement d'un utilisateur
-export const validateRegister = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const validateRegister = (req: Request,res: Response,next: NextFunction) => {
 
   const { username, email, password } = req.body
 
