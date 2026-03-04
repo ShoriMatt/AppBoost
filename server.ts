@@ -9,7 +9,7 @@ app.use(express.json())
 app.use("/users", userRouter)
 
 app.get("/", (req, res) => {
-  res.send("API AppBoost running")
+  res.send("Bienvenue sur l'API AppBoost de Shori_Matt !")
 })
 
 app.listen(PORT, () => {
