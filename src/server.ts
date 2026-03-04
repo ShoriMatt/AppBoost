@@ -2,6 +2,7 @@
 
 import express from 'express'
 import { pool } from './db.js'
+import userRouter from './users.routes.js'
 
 type UserType = {
     id: number
@@ -14,6 +15,7 @@ const app = express()
 const PORT: number = 4000
 
 app.use(express.json())
+app.use(userRouter)
 
 const users: UserType[] = []
 let nextId = 1
