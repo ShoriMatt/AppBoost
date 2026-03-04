@@ -4,6 +4,7 @@ from "../controllers/users.controller.js"
 
 const userRouter = Router()
 
+// Définit les routes qui appellent les fonctions du contrôleur utilisateur
 userRouter.get("/users", getUsers)
 userRouter.get("/users/:id", getUserById)
 userRouter.post("/users", createUser)

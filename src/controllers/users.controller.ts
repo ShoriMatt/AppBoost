@@ -10,11 +10,8 @@ type UserRow = RowDataPacket & {
   username: string | null
 }
 
-export const getUserById = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// Récupère un utilisateur par son ID
+export const getUserById = async (req: Request,res: Response,next: NextFunction) => {
   try {
     const id = Number(req.params.id)
 
@@ -37,11 +34,8 @@ export const getUserById = async (
   }
 }
 
-export const getUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// Récupère tous les utilisateurs ou filtre par nom d'utilisateur
+export const getUsers = async (req: Request,res: Response,next: NextFunction) => {
   try {
     const { username } = req.query
 
@@ -67,11 +61,8 @@ export const getUsers = async (
   }
 }
 
-export const createUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// Crée un nouvel utilisateur
+export const createUser = async (req: Request,res: Response,next: NextFunction) => {
   try {
     const { name } = req.body as { name?: unknown }
 
@@ -95,11 +86,8 @@ export const createUser = async (
   }
 }
 
-export const updateUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// Met à jour les informations d'un utilisateur
+export const updateUser = async (req: Request,res: Response,next: NextFunction) => {
   const id = Number(req.params.id)
   const { username, firstname, lastname, birthday, age } = req.body
 
@@ -115,11 +103,8 @@ export const updateUser = async (
   }
 }
 
-export const deleteUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// Supprime un utilisateur
+export const deleteUser = async (req: Request,res: Response,next: NextFunction) => {
   const id = Number(req.params.id)
 
   try {
@@ -131,11 +116,8 @@ export const deleteUser = async (
   }
 }
 
-export const registerUser = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+// Enregistre un nouvel utilisateur
+export const registerUser = async (req: Request,res: Response,next: NextFunction) => {
   try {
     const user = await register(req.body)
 

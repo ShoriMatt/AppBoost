@@ -6,10 +6,10 @@ const PORT = 4000
 
 app.use(express.json())
 
-app.use(userRouter)
+app.use("/users", userRouter)
 
-app.get('/', (req, res) => {
-  res.send('API AppBoost running')
+app.get("/", (req, res) => {
+  res.send("API AppBoost running")
 })
 
 app.listen(PORT, () => {

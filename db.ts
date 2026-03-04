@@ -8,7 +8,7 @@ const connection = createPool({
   port: Number(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER ?? 'root',
   password: process.env.DB_PASSWORD ?? '',
-  database: process.env.DB_NAME ?? 'yboost_j2'
+  database: process.env.DB_NAME ?? 'appboost'
 });
 
 export const pool: Pool = connection
