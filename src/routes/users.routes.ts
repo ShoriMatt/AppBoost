@@ -2,18 +2,18 @@ import { Router } from "express"
 import * as usersController from "../controllers/users.controller.js"
 import * as usersMiddleware from "../middlewares/users.middleware.js"
 
-const router = Router()
+const userRouter = Router()
 
-router.get("/users", usersController.getUsers)
+userRouter.get("/", usersController.getUsers)
 
-router.get("/users/:id",usersMiddleware.validateUserId,usersController.getUserById)
+userRouter.get("/:id",usersMiddleware.validateUserId,usersController.getUserById)
 
-router.post("/users",usersMiddleware.validateCreateUser,usersController.createUser)
+userRouter.post("/",usersMiddleware.validateCreateUser,usersController.createUser)
 
-router.put("/users/:id",usersMiddleware.validateUserId,usersMiddleware.validateUpdateUser,usersController.updateUser)
+userRouter.put("/:id",usersMiddleware.validateUserId,usersMiddleware.validateUpdateUser,usersController.updateUser)
 
-router.delete("/users/:id",usersMiddleware.validateUserId,usersController.deleteUser)
+userRouter.delete("/:id",usersMiddleware.validateUserId,usersController.deleteUser)
 
-router.post("/users/register",usersMiddleware.validateRegister,usersController.registerUser)
+userRouter.post("/register",usersMiddleware.validateRegister,usersController.registerUser)
 
-export default router
+export default userRouter
