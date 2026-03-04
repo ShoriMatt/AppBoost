@@ -80,3 +80,32 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     next(err)
   }
 }
+
+export const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+  const id = Number(req.params.id)
+  const { username, firstname, lastname, birthday, age } = req.body
+
+  try {
+    await pool.query(
+      "UPDATE users SET username=?, firstname=?, lastname=?, birthday=?, age=? WHERE id=?",
+      [username, firstname, lastname, birthday, age, id]
+    )
+
+    res.json({ success: true, message: "Utilisateur mis à jour" })
+  } catch (err) {
+    next(err)
+  }
+}
+
+
+export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
+  const id = Number(req.params.id)
+
+  try {
+    await pool.query("DELETE FROM users WHERE id = ?", [id])
+
+    res.json({ success: true, message: "Utilisateur supprimé" })
+  } catch (err) {
+    next(err)
+  }
+}
