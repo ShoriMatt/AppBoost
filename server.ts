@@ -1,12 +1,17 @@
-import express from 'express'
-import userRouter from './src/routes/users.routes.js'
+import express from "express"
+import userRouter from "./src/routes/users.routes.js"
 
 const app = express()
-const PORT: number = 92050
+const PORT = 4000
 
 app.use(express.json())
+
 app.use(userRouter)
 
+app.get('/', (req, res) => {
+  res.send('API AppBoost running')
+})
+
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`)
+  console.log(`Server running on http://localhost:${PORT}`)
 })
