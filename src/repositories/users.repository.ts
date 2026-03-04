@@ -15,7 +15,7 @@ export const getUserById = (id: number) => {
   )
 }
 
-// Trouve un utilisateur par son email
+// Trouve un utilisateur par email
 export const findUserByEmail = (email: string) => {
   return pool.query(
     "SELECT id, email, username, password FROM users WHERE email = ?",
@@ -23,23 +23,30 @@ export const findUserByEmail = (email: string) => {
   )
 }
 
-// Crée un nouvel utilisateur
-export const createUser = (username: string, email: string, password: string) => {
+// Crée un utilisateur
+export const createUser = (name: string) => {
   return pool.query(
-    "INSERT INTO users (username,email,password) VALUES (?,?,?)",
-    [username, email, password]
+    "INSERT INTO users (name) VALUES (?)",
+    [name]
   )
 }
 
-// Met à jour les informations d'un utilisateur
-export const updateUser = (id: number,username: string,firstname: string,lastname: string,birthday: string,age: number) => {
+// Met à jour un utilisateur
+export const updateUser = (
+  id: number,
+  username: string,
+  firstname: string,
+  lastname: string,
+  birthday: string,
+  age: number
+) => {
   return pool.query(
     "UPDATE users SET username=?, firstname=?, lastname=?, birthday=?, age=? WHERE id=?",
     [username, firstname, lastname, birthday, age, id]
   )
 }
 
-// Supprime un utilisateur par son ID
+// Supprime un utilisateur
 export const deleteUser = (id: number) => {
   return pool.query(
     "DELETE FROM users WHERE id = ?",

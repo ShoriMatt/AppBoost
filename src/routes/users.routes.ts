@@ -1,15 +1,19 @@
 import { Router } from "express"
-import { getUsers, getUserById, createUser, updateUser, deleteUser, registerUser }
-from "../controllers/users.controller.js"
+import * as usersController from "../controllers/users.controller.js"
+import * as usersMiddleware from "../middlewares/users.middleware.js"
 
-const userRouter = Router()
+const router = Router()
 
-// Définit les routes qui appellent les fonctions du contrôleur utilisateur
-userRouter.get("/users", getUsers)
-userRouter.get("/users/:id", getUserById)
-userRouter.post("/users", createUser)
-userRouter.put("/users/:id", updateUser)
-userRouter.delete("/users/:id", deleteUser)
-userRouter.post("/users/register", registerUser)
+router.get("/users", usersController.getUsers)
 
-export default userRouter
+router.get("/users/:id",usersMiddleware.validateUserId,usersController.getUserById)
+
+router.post("/users",usersMiddleware.validateCreateUser,usersController.createUser)
+
+router.put("/users/:id",usersMiddleware.validateUserId,usersMiddleware.validateUpdateUser,usersController.updateUser)
+
+router.delete("/users/:id",usersMiddleware.validateUserId,usersController.deleteUser)
+
+router.post("/users/register",usersMiddleware.validateRegister,usersController.registerUser)
+
+export default router

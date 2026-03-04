@@ -1,131 +1,172 @@
-import { Request, Response, NextFunction } from "express"
-import { RowDataPacket, ResultSetHeader } from "mysql2/promise"
-import { pool } from "../db.js"
-import { register } from "../services/users.service.js"
+import { Request, Response } from "express"
+import * as usersService from "../services/users.service.js"
 
-type UserRow = RowDataPacket & {
-  id: number
-  name: string
-  email: string | null
-  username: string | null
+// Récupère tous les utilisateurs
+export const getUsers = async (req: Request, res: Response) => {
+
+  try {
+
+    const users = await usersService.getUsers()
+
+    return res.status(200).json(users)
+
+  } catch (err) {
+
+    return res.status(500).json({
+      error: "Erreur lors de la récupération des utilisateurs"
+    })
+
+  }
+
 }
 
 // Récupère un utilisateur par son ID
-export const getUserById = async (req: Request,res: Response,next: NextFunction) => {
+export const getUserById = async (req: Request, res: Response) => {
+
   try {
+
     const id = Number(req.params.id)
 
     if (Number.isNaN(id)) {
-      return res.status(400).json({ error: "Paramètre id invalide" })
+      return res.status(400).json({
+        error: "Paramètre id invalide"
+      })
     }
 
-    const [rows] = await pool.query<UserRow[]>(
-      "SELECT id, email, name, username FROM users WHERE id = ?",
-      [id]
-    )
+    const user = await usersService.getUserById(id)
 
-    if (!rows.length) {
-      return res.status(404).json({ error: "Utilisateur introuvable" })
+    if (!user) {
+      return res.status(404).json({
+        error: "Utilisateur introuvable"
+      })
     }
 
-    return res.status(200).json(rows[0])
+    return res.status(200).json(user)
+
   } catch (err) {
-    next(err)
-  }
-}
 
-// Récupère tous les utilisateurs ou filtre par nom d'utilisateur
-export const getUsers = async (req: Request,res: Response,next: NextFunction) => {
-  try {
-    const { username } = req.query
-
-    if (!username) {
-      const [rows] = await pool.query<UserRow[]>(
-        "SELECT id, email, name, username FROM users"
-      )
-      return res.status(200).json(rows)
-    }
-
-    if (typeof username !== "string") {
-      return res.status(400).json({ error: "Query param username invalide" })
-    }
-
-    const [rows] = await pool.query<UserRow[]>(
-      "SELECT id, email, name, username FROM users WHERE LOWER(username) = LOWER(?)",
-      [username]
-    )
-
-    return res.status(200).json(rows)
-  } catch (err) {
-    next(err)
-  }
-}
-
-// Crée un nouvel utilisateur
-export const createUser = async (req: Request,res: Response,next: NextFunction) => {
-  try {
-    const { name } = req.body as { name?: unknown }
-
-    if (!name || typeof name !== "string" || !name.trim()) {
-      return res.status(400).json({ error: "Le champ name est requis" })
-    }
-
-    const cleanName = name.trim()
-
-    const [result] = await pool.query<ResultSetHeader>(
-      "INSERT INTO users (name) VALUES (?)",
-      [cleanName]
-    )
-
-    return res.status(201).json({
-      id: result.insertId,
-      name: cleanName
+    return res.status(500).json({
+      error: "Erreur serveur"
     })
-  } catch (err) {
-    next(err)
+
   }
+
 }
 
-// Met à jour les informations d'un utilisateur
-export const updateUser = async (req: Request,res: Response,next: NextFunction) => {
-  const id = Number(req.params.id)
-  const { username, firstname, lastname, birthday, age } = req.body
+// Crée un utilisateur
+export const createUser = async (req: Request, res: Response) => {
 
   try {
-    await pool.query(
-      "UPDATE users SET username=?, firstname=?, lastname=?, birthday=?, age=? WHERE id=?",
-      [username, firstname, lastname, birthday, age, id]
+
+    const { name } = req.body
+
+    if (!name) {
+      return res.status(400).json({
+        error: "Le champ name est requis"
+      })
+    }
+
+    const user = await usersService.createUser(name)
+
+    return res.status(201).json(user)
+
+  } catch (err) {
+
+    return res.status(500).json({
+      error: "Erreur lors de la création de l'utilisateur"
+    })
+
+  }
+
+}
+
+// Met à jour un utilisateur
+export const updateUser = async (req: Request, res: Response) => {
+
+  try {
+
+    const id = Number(req.params.id)
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        error: "Paramètre id invalide"
+      })
+    }
+
+    const { username, firstname, lastname, birthday, age } = req.body
+
+    const result = await usersService.updateUser(
+      id,
+      username,
+      firstname,
+      lastname,
+      birthday,
+      age
     )
 
-    res.json({ success: true, message: "Utilisateur mis à jour" })
+    return res.status(200).json(result)
+
   } catch (err) {
-    next(err)
+
+    return res.status(500).json({
+      error: "Erreur lors de la mise à jour"
+    })
+
   }
+
 }
 
 // Supprime un utilisateur
-export const deleteUser = async (req: Request,res: Response,next: NextFunction) => {
-  const id = Number(req.params.id)
+export const deleteUser = async (req: Request, res: Response) => {
 
   try {
-    await pool.query("DELETE FROM users WHERE id = ?", [id])
 
-    res.json({ success: true, message: "Utilisateur supprimé" })
+    const id = Number(req.params.id)
+
+    if (Number.isNaN(id)) {
+      return res.status(400).json({
+        error: "Paramètre id invalide"
+      })
+    }
+
+    const result = await usersService.deleteUser(id)
+
+    return res.status(200).json(result)
+
   } catch (err) {
-    next(err)
+
+    return res.status(500).json({
+      error: "Erreur lors de la suppression"
+    })
+
   }
+
 }
 
-// Enregistre un nouvel utilisateur
-export const registerUser = async (req: Request,res: Response,next: NextFunction) => {
-  try {
-    const user = await register(req.body)
+// Register
+export const registerUser = async (req: Request, res: Response) => {
 
-    res.status(201).json({
+  try {
+
+    const user = await usersService.register(req.body)
+
+    return res.status(201).json({
       success: true,
       data: user
     })
-  } catch (err) {
-    next(err)
+
+  } catch (err: any) {
+
+    if (err.message === "Utilisateur déjà existant") {
+      return res.status(409).json({
+        error: err.message
+      })
+    }
+
+    return res.status(500).json({
+      error: "Erreur lors de l'inscription"
+    })
+
   }
+
 }

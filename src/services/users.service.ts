@@ -6,26 +6,77 @@ export const register = async (userToCreate: any) => {
 
   const { username, email, password } = userToCreate
 
-  // Vérifie si l'utilisateur existe déjà
-  const [existing] = await usersRepository.findUserByEmail(email)
+  const [existing]: any = await usersRepository.findUserByEmail(email)
 
-  if ((existing as any[]).length > 0) {
+  if (existing.length > 0) {
     throw new Error("Utilisateur déjà existant")
   }
 
-  // Hache le mot de passe pour la sécurité
   const hashedPassword = await bcrypt.hash(password, 10)
 
-  // Crée le nouvel utilisateur en base de données
-  const [result] = await usersRepository.createUser(
+  const [result]: any = await usersRepository.createUser(username)
+
+  return {
+    id: result.insertId,
     username,
-    email,
-    hashedPassword
+    email
+  }
+}
+
+// Récupère tous les utilisateurs
+export const getUsers = async () => {
+  const [rows] = await usersRepository.getUsers()
+  return rows
+}
+
+// Récupère un utilisateur par son ID
+export const getUserById = async (id: number) => {
+  const [rows]: any = await usersRepository.getUserById(id)
+  return rows[0]
+}
+
+// Crée un nouvel utilisateur
+export const createUser = async (name: string) => {
+  const [result]: any = await usersRepository.createUser(name)
+
+  return {
+    id: result.insertId,
+    name
+  }
+}
+
+// Met à jour les informations d'un utilisateur
+export const updateUser = async (
+  id: number,
+  username: string,
+  firstname: string,
+  lastname: string,
+  birthday: string,
+  age: number
+) => {
+
+  await usersRepository.updateUser(
+    id,
+    username,
+    firstname,
+    lastname,
+    birthday,
+    age
   )
 
   return {
-    id: (result as any).insertId,
-    username,
-    email
+    success: true,
+    message: "Utilisateur mis à jour"
+  }
+}
+
+// Supprime un utilisateur
+export const deleteUser = async (id: number) => {
+
+  await usersRepository.deleteUser(id)
+
+  return {
+    success: true,
+    message: "Utilisateur supprimé"
   }
 }
