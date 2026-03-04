@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import { RowDataPacket, ResultSetHeader } from "mysql2/promise"
-import { pool } from "../../db.js"
+import { pool } from "../db.js"
 import { register } from "../services/users.service.js"
 
 type UserRow = RowDataPacket & {

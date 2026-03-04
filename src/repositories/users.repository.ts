@@ -1,4 +1,4 @@
-import { pool } from "../../db.js"
+import { pool } from "../db.js"
 
 // Récupère tous les utilisateurs
 export const getUsers = () => {
